@@ -15,31 +15,38 @@ from dotenv import load_dotenv
 # ── Load Environment Variables ──────────────────
 load_dotenv()
 
-# ── Models & Clients ────────────────────────────
+# ── Validate API Key ────────────────────────────
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
+if not GROQ_API_KEY:
+    raise ValueError(
+        "GROQ_API_KEY is missing."
+    )
+
+# ── Embedding Model ─────────────────────────────
 embedder = SentenceTransformer(
     "all-MiniLM-L6-v2",
     device="cpu"
 )
 
+# ── Groq Client ─────────────────────────────────
 groq_client = Groq(
-    api_key=os.getenv("GROQ_API_KEY")
+    api_key=GROQ_API_KEY
 )
 
-# Persistent local DB
+# ── ChromaDB Client ─────────────────────────────
 chroma_client = chromadb.PersistentClient(
     path="./chroma_db"
 )
 
 # ── Load PDFs ───────────────────────────────────
-
 def load_pdfs(pdf_folder="pdfs"):
 
     documents = []
 
     if not os.path.exists(pdf_folder):
         raise FileNotFoundError(
-            f"PDF folder '{pdf_folder}' not found."
+            f"Folder '{pdf_folder}' not found."
         )
 
     for filename in os.listdir(pdf_folder):
@@ -68,7 +75,6 @@ def load_pdfs(pdf_folder="pdfs"):
     return documents
 
 # ── Split Into Chunks ───────────────────────────
-
 def split_into_chunks(
     documents,
     chunk_size=800,
@@ -102,17 +108,19 @@ def split_into_chunks(
     return chunks
 
 # ── Build Vector Store ──────────────────────────
-
 def build_vector_store(chunks):
 
     collection = chroma_client.get_or_create_collection(
         name="docs"
     )
 
-    # Avoid duplicate inserts
+    # Prevent duplicate inserts
     if collection.count() == 0:
 
-        texts = [chunk["text"] for chunk in chunks]
+        texts = [
+            chunk["text"]
+            for chunk in chunks
+        ]
 
         embeddings = embedder.encode(
             texts
@@ -141,7 +149,6 @@ def build_vector_store(chunks):
     return collection
 
 # ── Search Relevant Chunks ──────────────────────
-
 def search_chunks(
     query,
     collection,
@@ -171,8 +178,7 @@ def search_chunks(
 
     return retrieved_chunks
 
-# ── Ask Groq LLM ────────────────────────────────
-
+# ── Ask Groq ────────────────────────────────────
 def ask_groq(
     query,
     relevant_chunks
@@ -188,9 +194,9 @@ def ask_groq(
     prompt = f"""
 You are a helpful assistant.
 
-Answer ONLY from the context below.
+Answer ONLY from the provided context.
 
-If the answer is not found in the context,
+If the answer is not found,
 say:
 "I don't know based on these documents."
 
@@ -204,7 +210,7 @@ Answer:
 """
 
     response = groq_client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="llama3-8b-8192",
         messages=[
             {
                 "role": "user",
@@ -216,8 +222,7 @@ Answer:
 
     return response.choices[0].message.content
 
-# ── Full Pipeline ───────────────────────────────
-
+# ── Run Full Pipeline ───────────────────────────
 def run_pipeline():
 
     print("📄 Loading PDFs...")
