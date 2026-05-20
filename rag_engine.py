@@ -1,5 +1,10 @@
 import os
-import faiss
+try:
+    import faiss
+except ImportError:
+    import subprocess
+    subprocess.run(["pip", "install", "faiss-cpu"])
+    import faiss
 import numpy as np
 from pypdf import PdfReader
 from sentence_transformers import SentenceTransformer
