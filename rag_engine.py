@@ -1,21 +1,32 @@
+# ── SQLite Fix For Streamlit Cloud ───────────────
+__import__("pysqlite3")
+import sys
+sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+
+# ── Imports ─────────────────────────────────────
 import os
+
 from pypdf import PdfReader
 from sentence_transformers import SentenceTransformer
 import chromadb
 from groq import Groq
 from dotenv import load_dotenv
 
+# ── Load Environment Variables ──────────────────
 load_dotenv()
 
 # ── Models & Clients ────────────────────────────
 
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
+embedder = SentenceTransformer(
+    "all-MiniLM-L6-v2",
+    device="cpu"
+)
 
-client = Groq(
+groq_client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
 
-# Persistent database for Streamlit Cloud
+# Persistent local DB
 chroma_client = chromadb.PersistentClient(
     path="./chroma_db"
 )
@@ -56,7 +67,7 @@ def load_pdfs(pdf_folder="pdfs"):
 
     return documents
 
-# ── Split into Chunks ───────────────────────────
+# ── Split Into Chunks ───────────────────────────
 
 def split_into_chunks(
     documents,
@@ -98,25 +109,26 @@ def build_vector_store(chunks):
         name="docs"
     )
 
-    # Prevent duplicate embeddings
-    existing = collection.count()
+    # Avoid duplicate inserts
+    if collection.count() == 0:
 
-    if existing == 0:
-
-        texts = [c["text"] for c in chunks]
+        texts = [chunk["text"] for chunk in chunks]
 
         embeddings = embedder.encode(
             texts
         ).tolist()
 
-        ids = [str(i) for i in range(len(chunks))]
+        ids = [
+            str(i)
+            for i in range(len(chunks))
+        ]
 
         metadatas = [
             {
-                "source": c["source"],
-                "page": c["page"]
+                "source": chunk["source"],
+                "page": chunk["page"]
             }
-            for c in chunks
+            for chunk in chunks
         ]
 
         collection.add(
@@ -126,14 +138,13 @@ def build_vector_store(chunks):
             ids=ids
         )
 
-    return collection, chunks
+    return collection
 
-# ── Search ──────────────────────────────────────
+# ── Search Relevant Chunks ──────────────────────
 
 def search_chunks(
     query,
     collection,
-    chunks,
     top_k=4
 ):
 
@@ -146,36 +157,41 @@ def search_chunks(
         n_results=top_k
     )
 
-    retrieved = []
+    retrieved_chunks = []
 
     for i, doc in enumerate(results["documents"][0]):
 
-        meta = results["metadatas"][0][i]
+        metadata = results["metadatas"][0][i]
 
-        retrieved.append({
+        retrieved_chunks.append({
             "text": doc,
-            "source": meta["source"],
-            "page": meta["page"]
+            "source": metadata["source"],
+            "page": metadata["page"]
         })
 
-    return retrieved
+    return retrieved_chunks
 
-# ── Ask Groq ────────────────────────────────────
+# ── Ask Groq LLM ────────────────────────────────
 
-def ask_groq(query, relevant_chunks):
+def ask_groq(
+    query,
+    relevant_chunks
+):
 
     context = "\n\n".join([
-        f"[Source: {c['source']} | "
-        f"Page {c['page']}]\n{c['text']}"
-        for c in relevant_chunks
+        f"[Source: {chunk['source']} | "
+        f"Page {chunk['page']}]\n"
+        f"{chunk['text']}"
+        for chunk in relevant_chunks
     ])
 
     prompt = f"""
 You are a helpful assistant.
 
-Answer ONLY from the provided context.
+Answer ONLY from the context below.
 
-If the answer is not found, say:
+If the answer is not found in the context,
+say:
 "I don't know based on these documents."
 
 Context:
@@ -187,7 +203,7 @@ Question:
 Answer:
 """
 
-    response = client.chat.completions.create(
+    response = groq_client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
             {
@@ -215,7 +231,7 @@ def run_pipeline():
     print(f"✅ Created {len(chunks)} chunks")
 
     print("🔢 Building vector store...")
-    collection, chunks = build_vector_store(chunks)
+    collection = build_vector_store(chunks)
 
     print("✅ Vector store ready!")
 

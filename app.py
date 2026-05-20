@@ -13,17 +13,18 @@ st.title("📄 Ask My Docs")
 st.markdown("Upload PDFs and ask questions — get answers with sources!")
 st.divider()
 
-# ── Load & Index PDFs ────────────────────────────
+# ── Load PDFs & Build Vector Store ───────────────
 @st.cache_resource(show_spinner="🔄 Loading and indexing PDFs...")
 def load_data():
     collection, chunks = run_pipeline()
     return collection, chunks
 
+
 collection, chunks = load_data()
 
 st.success("✅ PDFs loaded and indexed successfully!")
 
-# ── Question Input ───────────────────────────────
+# ── Ask Question ─────────────────────────────────
 st.subheader("💬 Ask a Question")
 
 query = st.text_input(
@@ -37,13 +38,15 @@ if query:
     with st.spinner("🤔 Thinking..."):
 
         relevant_chunks = search_chunks(
-            query,
-            collection,
-            chunks,
+            query=query,
+            collection=collection,
             top_k=4
         )
 
-        answer = ask_groq(query, relevant_chunks)
+        answer = ask_groq(
+            query=query,
+            relevant_chunks=relevant_chunks
+        )
 
     st.subheader("🤖 Answer")
     st.write(answer)
