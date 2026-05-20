@@ -213,7 +213,7 @@ Answer:
 
         response = groq_client.chat.completions.create(
 
-            model="llama3-70b-8192",
+            model="llama-3.1-8b-instant",
 
             messages=[
                 {
