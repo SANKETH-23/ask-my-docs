@@ -7,3 +7,4 @@ langchain-community
 groq
 python-dotenv
 numpy
+torch
