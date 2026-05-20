@@ -17,9 +17,9 @@ st.divider()
 @st.cache_resource(show_spinner="🔄 Loading and indexing PDFs... please wait")
 def load_data():
     index, chunks = run_pipeline()
-    return index, chunks
+    return collection, chunks
 
-index, chunks = load_data()
+collection, chunks = load_data()
 st.success(f"✅ PDFs loaded and indexed successfully!")
 
 # ── Question Input ───────────────────────────────────────────────
@@ -33,7 +33,7 @@ query = st.text_input(
 if query:
     with st.spinner("🤔 Thinking..."):
         # Get relevant chunks
-        relevant_chunks = search_chunks(query, index, chunks, top_k=4)
+        relevant_chunks = search_chunks(query, collection, chunks, top_k=4)
 
         # Get answer from Groq
         answer = ask_groq(query, relevant_chunks)

@@ -1,10 +1,9 @@
 streamlit
 pypdf
 sentence-transformers
-faiss-cpu==1.7.4
+chromadb
 langchain
 langchain-community
 groq
 python-dotenv
 numpy
-torch
