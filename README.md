@@ -308,7 +308,7 @@ https://sanketh-ask-my-docs.streamlit.app/
 
 # 🎥 Demo Recording
 
-Demo link will be added after recording.
+https://youtu.be/BtnWLJ3OKeU?si=3LKbgwARrnzEHdUw
 
 ---
 
