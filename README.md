@@ -1,153 +1,354 @@
 # 📄 Ask My Docs — AI-Powered PDF Q&A App
 
 ## Candidate Details
+
 - **Name:** Sanketh S
 - **Email:** sanki23sanketh@gmail.com
-- **Phone:** 9019074504
+- **Phone:** +91-9019074504
 - **Role Applied For:** AI Developer Internship — Terrainfra360
 
 ---
 
-## 📌 Project Overview
-Ask My Docs is a Retrieval-Augmented Generation (RAG) web application
-built with Streamlit. Users can upload PDF documents and ask questions
-in natural language. The app retrieves the most relevant chunks from
-the PDFs and generates accurate answers using a free LLM API (Groq),
-along with the source file and page number.
+# 🚀 Project Overview
+
+Ask My Docs is a Retrieval-Augmented Generation (RAG) based PDF Question Answering application built using Streamlit.
+
+The application allows users to interact with PDF documents using natural language queries. It retrieves the most relevant content from uploaded PDFs using semantic search and generates grounded responses using a Large Language Model (LLM).
+
+The system combines:
+- PDF ingestion
+- text chunking
+- embeddings
+- vector similarity search
+- conversational memory
+- prompt-augmented answer generation
+
+to provide context-aware answers with source citations.
 
 ---
 
-## 🛠️ Technology Stack
-- **Python** 3.10+
-- **Streamlit** — Web UI
-- **sentence-transformers** (all-MiniLM-L6-v2) — Local embeddings
-- **FAISS** — Vector store for similarity search
-- **Groq API** (llama-3.3-70b-versatile) — Free LLM for answer generation
-- **pypdf** — PDF text extraction
-- **LangChain** — Text splitting utilities
-- **python-dotenv** — Environment variable management
+# ✨ Features
+
+## Core Features
+
+- PDF ingestion from local folder
+- Text chunking with overlap
+- Semantic embeddings using Sentence Transformers
+- ChromaDB vector database
+- Top-k semantic retrieval
+- Question answering using Groq LLM
+- Streamlit web interface
+- Source chunk display with filename
+- Page number citations
 
 ---
 
-## ⚙️ Setup & Installation
+## Bonus Features Implemented
 
-### 1. Clone the Repository
+- ✅ Multi-turn conversation memory
+- ✅ Persistent embedding cache to disk
+- ✅ Hallucination control prompt
+- ✅ Page number source citations
+- ✅ Cached vector database for faster startup
+
+---
+
+# 🧠 System Architecture
+
+```text
+PDF Documents
+      ↓
+Text Extraction
+      ↓
+Chunking
+      ↓
+Embeddings Generation
+      ↓
+ChromaDB Vector Store
+      ↓
+Similarity Search
+      ↓
+Relevant Context Retrieval
+      ↓
+Prompt Construction
+      ↓
+Groq LLM Response
+```
+
+---
+
+# 🛠️ Technology Stack
+
+| Technology | Purpose |
+|---|---|
+| Python 3.10 | Core programming language |
+| Streamlit | Web application UI |
+| Sentence Transformers | Embedding generation |
+| all-MiniLM-L6-v2 | Embedding model |
+| ChromaDB | Vector database |
+| Groq API | LLM inference |
+| PyPDF | PDF text extraction |
+| python-dotenv | Environment management |
+| NumPy | Numerical operations |
+
+---
+
+# ⚙️ Installation & Setup
+
+## 1. Clone Repository
+
 ```bash
 git clone https://github.com/SANKETH-23/ask-my-docs.git
 cd ask-my-docs
 ```
 
-### 2. Create Virtual Environment
+---
+
+## 2. Create Virtual Environment
+
+### Windows
+
 ```bash
 python -m venv venv
-venv\Scripts\activate        # Windows
-source venv/bin/activate     # Mac/Linux
+venv\Scripts\activate
 ```
 
-### 3. Install Dependencies
+### Linux / Mac
+
 ```bash
-pip install streamlit pypdf sentence-transformers faiss-cpu langchain langchain-community groq python-dotenv
+python3 -m venv venv
+source venv/bin/activate
 ```
-
-### 4. Configure API Key
-- Copy `.env.example` to `.env`
-- Get free API key from https://console.groq.com
-- Add your key to `.env`:
-
-GROQ_API_KEY=your_actual_key_here
-
-### 5. Add PDF Files
-- Place at least 3 PDF files inside the `/pdfs` folder
-
-### 6. Run the App
-```bash
-streamlit run app.py
-```
-- App opens at: http://localhost:8501
 
 ---
 
-## 🔑 Environment Variables
+## 3. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 4. Configure Environment Variables
+
+Create a `.env` file in the root directory.
+
+```env
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+You can obtain a free API key from:
+
+https://console.groq.com
+
+---
+
+## 5. Add PDF Files
+
+Place at least 3 PDF files inside:
+
+```text
+/pdfs
+```
+
+---
+
+## 6. Run the Application
+
+```bash
+streamlit run app.py
+```
+
+The application will start at:
+
+```text
+http://localhost:8501
+```
+
+---
+
+# 🔑 Environment Variables
+
 | Variable | Description |
 |---|---|
-| `GROQ_API_KEY` | Free API key from console.groq.com |
+| GROQ_API_KEY | Groq API key for LLM inference |
 
 See `.env.example` for reference.
 
 ---
 
-## ✅ Features Checklist
+# 📂 Project Structure
 
-### Completed ✅
-- [x] PDF ingestion from local /pdfs folder
-- [x] Text chunking (800 chars with 100 char overlap)
-- [x] Sentence-transformer embeddings (all-MiniLM-L6-v2)
-- [x] FAISS vector store
-- [x] Top 4 relevant chunks retrieval
-- [x] Groq LLM answer generation
-- [x] Source filename + page number display
-- [x] Expandable source chunks in UI
-- [x] "I don't know" response when context is insufficient
-- [x] Streamlit single-page UI
-
-### Partially Completed ⏳
-- [ ] Deployment on Streamlit Cloud (in progress)
-
-### Not Implemented ❌
-- [ ] Multi-turn conversation memory
-- [ ] Embedding cache to disk
+```text
+ask-my-docs/
+│
+├── .streamlit/
+│   └── secrets.toml
+│
+├── pdfs/
+├── chroma_db/
+│
+├── app.py
+├── rag_engine.py
+├── requirements.txt
+├── README.md
+├── .env.example
+└── .gitignore
+```
 
 ---
 
-## 🎁 Bonus Features Attempted
-- ✅ Page number shown in source citations
-- ✅ Prompt instructs LLM to say "I don't know based on these documents"
-  when context is insufficient
+# ✅ Feature Completion Checklist
+
+## Completed
+
+- [x] PDF ingestion
+- [x] Text chunking
+- [x] Embeddings generation
+- [x] ChromaDB vector storage
+- [x] Semantic similarity retrieval
+- [x] Groq LLM integration
+- [x] Streamlit UI
+- [x] Source chunk citations
+- [x] Page number references
+- [x] Multi-turn memory
+- [x] Embedding cache to disk
+- [x] Deployment on Streamlit Cloud
 
 ---
 
-## ❗ Known Issues & Assumptions
-- App works best with text-based PDFs (not scanned images)
-- All PDFs must be placed in /pdfs folder before starting the app
-- Groq free tier has rate limits on heavy usage
+## Partially Completed
+
+- [ ] Advanced OCR support for scanned PDFs
 
 ---
 
-## 💬 5 Sample Q&A Pairs
+## Not Implemented
 
-**Q1: What is the main topic of this document?**
-> Based on the context, the main topic of this document appears to be
-> statistics, specifically the collection, analysis, and use of
-> statistical data in various fields such as government planning,
-> business operations, and research.
-
-**Q2: Summarise the key points mentioned**
-> The key points include: Statistics involves three critical tasks —
-> collecting, summarizing, and analyzing data. Understanding data is
-> essential for personal and professional decisions. Descriptive
-> statistics summarizes raw observations using statistical values and
-> graphical methods.
-
-**Q3: What are the important terms explained?**
-> Important terms include: Qualitative information (e.g. good, bad,
-> beautiful), Quantitative information (e.g. income, expenditure,
-> savings), Nature of Data, Statistics, and Statistical methods
-> such as averages and correlations.
-
-**Q4: What conclusions are mentioned?**
-> Statistical conclusions are mentioned as being reliable and accurate
-> by statisticians, but also potentially misleading if not properly
-> contextualized. Some believe statistics can distort truth, leading
-> to distrust in its findings.
-
-**Q5: Any specific data or numbers mentioned?**
-> There are no specific data or numbers mentioned in the context,
-> except for some page numbers: Page 9, Page 7, Page 14, and Page 20.
+- [ ] Authentication
+- [ ] Multi-user document isolation
 
 ---
 
-## 🎥 Demo Recording
-[Link will be added after recording]
+# 💬 Sample Q&A Pairs
 
-## 🌐 Live Deployed URL
-[https://sanketh-ask-my-docs.streamlit.app/]
+## Q1
+
+### Question
+What is the main topic of this document?
+
+### Answer
+The document primarily discusses statistics, including data collection, summarization, analysis, and interpretation.
+
+---
+
+## Q2
+
+### Question
+Summarize the key points mentioned.
+
+### Answer
+The document explains the importance of statistics in business, government, and research. It discusses descriptive statistics, data interpretation, and statistical reasoning.
+
+---
+
+## Q3
+
+### Question
+What important terms are explained?
+
+### Answer
+The document explains terms such as qualitative data, quantitative data, descriptive statistics, averages, correlations, and data analysis.
+
+---
+
+## Q4
+
+### Question
+What conclusions are discussed?
+
+### Answer
+The document explains that statistical conclusions can be highly reliable when used correctly, but misleading interpretations may distort results.
+
+---
+
+## Q5
+
+### Question
+Are there any important numbers or figures mentioned?
+
+### Answer
+The retrieved context referenced several page numbers and examples, though no major numerical dataset was explicitly discussed.
+
+---
+
+# ❗ Known Limitations
+
+- Works best with text-based PDFs
+- OCR is not supported for scanned PDFs
+- Large PDFs increase embedding generation time
+- Free-tier Groq API may have rate limits
+
+---
+
+# 🌐 Deployment
+
+## GitHub Repository
+
+https://github.com/SANKETH-23/ask-my-docs
+
+---
+
+## Live Streamlit Application
+
+https://sanketh-ask-my-docs.streamlit.app/
+
+---
+
+# 🎥 Demo Recording
+
+Demo link will be added after recording.
+
+---
+
+# 🔮 Future Improvements
+
+- OCR support for scanned PDFs
+- Hybrid keyword + vector retrieval
+- Streaming responses
+- User-uploaded PDFs from UI
+- Better reranking models
+- Docker deployment support
+
+---
+
+# 🧩 Design Decisions
+
+## Why Chunking?
+
+LLMs have token limits. Chunking divides large PDFs into manageable sections for retrieval.
+
+---
+
+## Why Embeddings?
+
+Embeddings convert text into vectors that preserve semantic meaning, enabling similarity search.
+
+---
+
+## Why ChromaDB?
+
+ChromaDB provides a lightweight local vector database suitable for free-tier deployment.
+
+---
+
+## Why Retrieval-Augmented Generation (RAG)?
+
+RAG reduces hallucination by grounding LLM responses using retrieved document context.
+
+---
+
+## Why Conversation Memory?
+
+Memory improves multi-turn conversational flow and allows follow-up questions with context continuity.
