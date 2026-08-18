@@ -1,7 +1,12 @@
-# ── SQLite Fix For Streamlit Cloud ───────────────
-__import__("pysqlite3")
 import sys
-sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+
+# ── SQLite Fix For Streamlit Cloud ───────────────
+# Streamlit Cloud uses pysqlite3; Windows already bundles SQLite with Python.
+try:
+    import pysqlite3
+    sys.modules["sqlite3"] = pysqlite3
+except ModuleNotFoundError:
+    pass
 
 # ── Imports ─────────────────────────────────────
 import os
@@ -275,7 +280,7 @@ Answer:
 
         response = groq_client.chat.completions.create(
 
-            model="llama-3.1-8b-instant",
+            model="openai/gpt-oss-20b",
 
             messages=[
                 {
